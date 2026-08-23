@@ -73,7 +73,7 @@ sobald eine Aenderung es wieder bricht, verschwindet der Haken. Du musst hier
 nichts von Hand pflegen — beim naechsten Push wird die Liste ueberschrieben.
 
 <!-- c50:progress -->
-**Fortschritt: 0 / 11 automatisch geprueften Kriterien erfuellt.** Noch nicht geprueft.
+**Fortschritt: 0 / 11 automatisch geprueften Kriterien erfuellt.** Stand: 2026-08-23 21:54 UTC.
 <!-- /c50:progress -->
 
 - [ ] Aufgabe 1: Security-Workflow vorhanden (.github/workflows/security-pipeline.yml)
