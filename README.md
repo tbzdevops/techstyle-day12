@@ -67,24 +67,32 @@ API-Token, YAML-Grundkenntnisse.
 
 ## Abnahmekriterien
 
-> ⚠️ **Hinweis:** Die automatischen Checks fuer Tag 12 pruefen aktuell
-> Skalierungs- und Performance-Dokumentation, nicht die DevSecOps-Pipeline
-> aus dem Projektauftrag oben. Die Security-Pipeline wird durch die
-> Lehrperson manuell abgenommen. Fragt nach, falls unklar ist, was fuer die
-> Abgabe zaehlt.
+Diese Kriterien prueft die Pipeline bei jedem Push automatisch. **Die Haken
+setzt die Pipeline selbst:** ein erfuelltes Kriterium wird abgehakt, und
+sobald eine Aenderung es wieder bricht, verschwindet der Haken. Du musst hier
+nichts von Hand pflegen — beim naechsten Push wird die Liste ueberschrieben.
 
-Automatisch geprueft werden:
+<!-- c50:progress -->
+**Fortschritt: 0 / 11 automatisch geprueften Kriterien erfuellt.** Noch nicht geprueft.
+<!-- /c50:progress -->
 
-- [ ] Skalierungs-Dokumentation vorhanden
-- [ ] Lasttest oder Performance-Test dokumentiert
-- [ ] Dokumentation hat ausreichend Inhalt
+- [ ] Aufgabe 1: Security-Workflow vorhanden (.github/workflows/security-pipeline.yml)
+- [ ] Aufgabe 1: Workflow definiert mindestens einen Job (jobs:)
+- [ ] Aufgabe 1: Wird bei Push und Pull Request ausgelöst
+- [ ] Aufgabe 2: SNYK_TOKEN als GitHub Secret referenziert
+- [ ] Aufgabe 2: Dependency-Scanning vorhanden (snyk test / SCA)
+- [ ] Aufgabe 2: Statische Code-Analyse vorhanden (snyk code test / SAST)
+- [ ] Aufgabe 2: Severity-Threshold definiert (z. B. high/critical)
+- [ ] Aufgabe 5: SARIF-Report wird zu GitHub Code Scanning hochgeladen
+- [ ] Aufgabe 5: Security-Dokumentation vorhanden (SECURITY.md)
+- [ ] Aufgabe 5: SECURITY.md dokumentiert Findings und Behebung
+- [ ] Aufgabe 5: SECURITY.md hat ausreichend Inhalt (mind. 100 Wörter)
 
-Manuell abgenommen wird der Projektauftrag:
+Zusaetzlich manuell abgenommen (nicht automatisch geprueft):
 
-- [ ] DevSecOps-Konzept und Shift-Left-Ansatz erklaert
-- [ ] SAST mit Snyk in CI-Pipeline integriert
-- [ ] DAST mit OWASP ZAP durchgefuehrt
-- [ ] Kritische Sicherheitsluecken identifiziert und behoben
+- DevSecOps-Konzept und Shift-Left-Ansatz erklaert
+- DAST mit OWASP ZAP durchgefuehrt (optionale Zusatzaufgabe)
+- Kritische Sicherheitsluecken identifiziert und behoben
 
 ## Abnahmekriterien selber pruefen
 
@@ -107,7 +115,8 @@ Exit-Code 1.
 
 **In GitHub** — bei jedem Push:
 
-Der Workflow **🎓 Classroom Autograding** laeuft automatisch. Ergebnis im Tab
+Der Workflow **🎓 Classroom Autograding** laeuft automatisch und hakt die
+erfuellten Kriterien oben im README ab. Ergebnis im Tab
 **Actions** → letzter Run → Job *Abnahmekriterien pruefen*.
 
 ## Anwendung lokal starten
