@@ -73,20 +73,20 @@ sobald eine Aenderung es wieder bricht, verschwindet der Haken. Du musst hier
 nichts von Hand pflegen — beim naechsten Push wird die Liste ueberschrieben.
 
 <!-- c50:progress -->
-**Fortschritt: 0 / 11 automatisch geprueften Kriterien erfuellt.** Stand: 2026-08-23 21:54 UTC.
+**Fortschritt: 0 / 11 Kriterien erfüllt** ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ — noch nicht geprueft.
 <!-- /c50:progress -->
 
-- [ ] Aufgabe 1: Security-Workflow vorhanden (.github/workflows/security-pipeline.yml)
-- [ ] Aufgabe 1: Workflow definiert mindestens einen Job (jobs:)
-- [ ] Aufgabe 1: Wird bei Push und Pull Request ausgelöst
-- [ ] Aufgabe 2: SNYK_TOKEN als GitHub Secret referenziert
-- [ ] Aufgabe 2: Dependency-Scanning vorhanden (snyk test / SCA)
-- [ ] Aufgabe 2: Statische Code-Analyse vorhanden (snyk code test / SAST)
-- [ ] Aufgabe 2: Severity-Threshold definiert (z. B. high/critical)
-- [ ] Aufgabe 5: SARIF-Report wird zu GitHub Code Scanning hochgeladen
-- [ ] Aufgabe 5: Security-Dokumentation vorhanden (SECURITY.md)
-- [ ] Aufgabe 5: SECURITY.md dokumentiert Findings und Behebung
-- [ ] Aufgabe 5: SECURITY.md hat ausreichend Inhalt (mind. 100 Wörter)
+- [ ] ⬜ Aufgabe 1: Security-Workflow vorhanden (.github/workflows/security-pipeline.yml)
+- [ ] ⬜ Aufgabe 1: Workflow definiert mindestens einen Job (jobs:)
+- [ ] ⬜ Aufgabe 1: Wird bei Push und Pull Request ausgelöst
+- [ ] ⬜ Aufgabe 2: SNYK_TOKEN als GitHub Secret referenziert
+- [ ] ⬜ Aufgabe 2: Dependency-Scanning vorhanden (snyk test / SCA)
+- [ ] ⬜ Aufgabe 2: Statische Code-Analyse vorhanden (snyk code test / SAST)
+- [ ] ⬜ Aufgabe 2: Severity-Threshold definiert (z. B. high/critical)
+- [ ] ⬜ Aufgabe 5: SARIF-Report wird zu GitHub Code Scanning hochgeladen
+- [ ] ⬜ Aufgabe 5: Security-Dokumentation vorhanden (SECURITY.md)
+- [ ] ⬜ Aufgabe 5: SECURITY.md dokumentiert Findings und Behebung
+- [ ] ⬜ Aufgabe 5: SECURITY.md hat ausreichend Inhalt (mind. 100 Wörter)
 
 Zusaetzlich manuell abgenommen (nicht automatisch geprueft):
 
