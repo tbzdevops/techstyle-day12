@@ -1,0 +1,42 @@
+name: 🎓 Classroom Autograding
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  checks: write
+  contents: read
+
+jobs:
+  run-autograding-tests:
+    name: Abnahmekriterien prüfen
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Abnahmekriterien
+        id: abnahmekriterien
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Abnahmekriterien
+          setup-command: chmod +x .github/classroom/grade.sh .github/classroom/checks/*.sh
+          command: bash .github/classroom/grade.sh
+          timeout: 10
+          max-score: 100
+
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          ABNAHMEKRITERIEN_RESULTS: "${{ steps.abnahmekriterien.outputs.result }}"
+        with:
+          runners: abnahmekriterien
