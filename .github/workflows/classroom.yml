@@ -26,16 +26,23 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Ein einziger Lauf von grade.sh; er schreibt jedes Kriterium als
+      # PASS/FAIL-Zeile nach $CLASSROOM_RESULTS. Aus dieser Datei speisen sich
+      # danach BEIDE Folgeschritte: die Punkte und die Haken im README.
+      # '|| true' — ein unerfuelltes Kriterium beendet grade.sh mit 1; rot
+      # macht den Job der Reporter, nicht dieser Schritt.
       - name: Abnahmekriterien
         id: abnahmekriterien
-        uses: classroom-resources/autograding-command-grader@v1
-        with:
-          test-name: Abnahmekriterien
-          setup-command: chmod +x .github/classroom/grade.sh .github/classroom/checks/*.sh
-          command: bash .github/classroom/grade.sh
-          timeout: 10
-          max-score: 100
+        env:
+          CLASSROOM_RESULTS: ${{ runner.temp }}/classroom-results.tsv
+        run: |
+          chmod +x .github/classroom/grade.sh .github/classroom/checks/*.sh
+          bash .github/classroom/grade.sh || true
+          python3 .github/classroom/report_score.py
 
+      # Zeigt jedes Kriterium einzeln und vergibt Teilpunkte: die Punktzahl
+      # entspricht dem Anteil der erfuellten Kriterien. Der Job wird rot,
+      # solange noch eines offen ist.
       - name: Autograding Reporter
         uses: classroom-resources/autograding-grading-reporter@v1
         env:
@@ -54,11 +61,6 @@ jobs:
         env:
           CLASSROOM_RESULTS: ${{ runner.temp }}/classroom-results.tsv
         run: |
-          # Eigener Lauf statt Wiederverwendung des Grader-Schritts: so hängt
-          # das Abhaken nicht davon ab, wie die Grader-Action Env-Variablen
-          # durchreicht.
-          bash .github/classroom/grade.sh > /dev/null 2>&1 || true
-
           python3 .github/classroom/update_readme.py && status=0 || status=$?
 
           # 10 = README wurde geändert, 0 = bereits aktuell.
