@@ -1,34 +1,24 @@
 #!/bin/bash
 source .github/classroom/grade.sh
 
-echo "🔍 Prüfe Abnahmekriterien für Tag 13 — AI in DevOps"
+echo "🔍 Prüfe Abnahmekriterien für Tag 13 — Container Pipeline"
 echo ""
 
 check_workflow_exists \
-  "ai-integration" \
-  "AI-Workflow existiert (.github/workflows/*ai*.yml)" \
-  "*ai*.yml"
+  "ci-workflow" \
+  "Container/Build-Workflow existiert" \
+  "container*.yml|build*.yml|docker*.yml"
 
 check_file_contains \
-  "ai-integration" \
-  "GitHub Models API oder KI-Integration im Workflow" \
-  ".github/workflows/*ai*.yml" \
-  "models.inference|openai|copilot|claude|ollama|ai|llm"
-
-check_file_exists \
-  "ai-integration" \
-  "AI_INTEGRATION.md Reflexionsdokument existiert" \
-  "AI_INTEGRATION.md"
-
-check \
-  "ai-integration" \
-  "AI_INTEGRATION.md hat ausreichend Inhalt (mind. 100 Wörter)" \
-  "[ \$(wc -w < AI_INTEGRATION.md 2>/dev/null) -ge 100 ]"
+  "ci-workflow" \
+  "Docker Image Build im Workflow" \
+  ".github/workflows/container*.yml|.github/workflows/build*.yml|.github/workflows/docker*.yml" \
+  "docker|build|image|push|registry"
 
 check_file_contains \
-  "ai-integration" \
-  "Abschnitt zu Grenzen/Risiken von AI vorhanden" \
-  "AI_INTEGRATION.md" \
-  "grenz|risiko|limit|schwäche|sicherheit|security|prompt|inject"
+  "ci-workflow" \
+  "Registry-Push oder Image Scanning vorhanden" \
+  ".github/workflows/container*.yml|.github/workflows/build*.yml" \
+  "push|scan|registry|dockerhub|ghcr"
 
 summary 13
