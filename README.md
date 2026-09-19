@@ -14,62 +14,70 @@ die menschliche Kontrolle aufzugeben.
 
 ## Ziel
 
-Erweitert die TechStyle CI/CD-Pipeline um einen AI-Schritt. Entscheidend ist
-nicht nur die technische Umsetzung, sondern auch die kritische Reflexion.
+In **zwei Lektionen (90 Min)** baut ihr einen AI-Review-Bot fuer die
+TechStyle-Pipeline — von der Spec ueber den lauffaehigen Workflow bis zur
+Absicherung gegen Prompt Injection — und haltet die Entscheidung als ADR und
+die Erfahrungen als Reflexion fest. Die ausfuehrliche Aufgabenstellung mit
+Workflow-Geruest steht in der Tagesplanung Tag 12.
+
+| Schritt | Zeit | Ergebnis |
+| --- | --- | --- |
+| 1 — Spec fuer den AI-Review-Bot | 10 Min | `specs/ai-review.md` |
+| 2 — Workflow bauen, an einem echten PR testen | 35 Min | `.github/workflows/ai-review.yml` |
+| 3 — Gegen Prompt Injection absichern | 15 Min | gehaerteter Workflow, Injection-Test-PR |
+| 4 — Entscheidung als ADR | 10 Min | `docs/adr/0001-ai-review-in-der-pipeline.md` |
+| 5 — Reflexion | 15 Min | `AI_INTEGRATION.md` |
+| Puffer / Bonus | 5 Min | optional zweite AI-Integration |
 
 ## Aufgaben
 
-### 1. Waehlt eine AI-Integration (mind. eine, Bonus: mehrere)
+### 1. Spec schreiben
 
-**Option A — AI Release Notes** *(Einsteiger)*
-Ein Workflow `.github/workflows/ai-release-notes.yml`, der bei Push auf
-`main` Release Notes aus dem Git-Log generiert und als Actions Summary
-ausgibt.
+`specs/ai-review.md` mit den Ueberschriften `Ziel`, `Anforderungen`,
+`Akzeptanzkriterien` und `Out of Scope`: was der Bot tun soll, bevor ihr ihn
+baut.
 
-**Option B — AI PR Review** *(Fortgeschritten)*
-Der vollstaendige AI Code Review aus der Praxis, erweitert um:
-Beschraenkung auf `*.py`, einen Hinweis *"Dieser Review ist AI-generiert und
-kein Ersatz fuer menschliches Code Review"*, sowie eine `AI_REVIEW.md` mit
-den Schwaechen des Ansatzes.
+### 2. Workflow bauen und testen
 
-**Option C — Commit Message Validator** *(Fortgeschritten)*
-Ein Workflow, der Commit-Messages gegen Conventional Commits validiert und
-bei Verstoessen einen AI-generierten Korrekturvorschlag liefert.
+Uebernehmt das Geruest aus der Tagesplanung nach
+`.github/workflows/ai-review.yml` und loest die drei TODOs:
 
-> Der Workflow-Dateiname muss `ai` enthalten, damit die automatische Pruefung
-> ihn findet (z. B. `ai-release-notes.yml`, `ai-review.yml`).
+1. Nur den Diff der Python-Dateien an die AI schicken.
+2. Fallback: schlaegt der API-Aufruf fehl, trotzdem einen Kommentar posten.
+3. Im Kommentar darauf hinweisen, dass der Review AI-generiert und **kein
+   Ersatz** fuer menschliches Code Review ist.
 
-### 2. Reflexionsdokument erstellen
+Testet mit einem echten Pull Request, der eine `.py`-Datei aendert.
 
-Legt `AI_INTEGRATION.md` an, mit diesen Abschnitten:
+> Der Workflow-Dateiname muss `ai` enthalten (z. B. `ai-review.yml`), sonst
+> findet ihn die automatische Pruefung nicht.
 
-- **Implementiertes Feature** — welche Option und warum?
-- **Was die AI-Integration leistet** — konkrete beobachtete Vorteile
-- **Grenzen und Schwaechen** — was kann sie nicht, wo war sie unzuverlaessig?
-- **Security-Betrachtung** — welche Prompt-Injection-Risiken seht ihr, und
-  was habt ihr dagegen unternommen?
-- **Fazit** — wuerdet ihr das produktiv einsetzen, unter welchen Bedingungen?
+### 3. Gegen Prompt Injection absichern
 
-Das Dokument muss mindestens 100 Woerter umfassen und einen Abschnitt zu
-Grenzen bzw. Risiken enthalten.
+- Diff zwischen Begrenzern (`<diff> ... </diff>`) schicken und im
+  System-Prompt als Daten kennzeichnen.
+- Berechtigungen minimal halten: `pull-requests: write`, `models: read`,
+  kein `write-all`.
+- PR-Inhalte nie per `${{ steps... }}` direkt in `run:` einsetzen, sondern
+  ueber `env:` oder Dateien (Script Injection).
+- Einen zweiten PR mit praepariertem Injection-Kommentar oeffnen und das
+  Ergebnis mit und ohne Haertung vergleichen.
 
-### 3. Entscheidung als ADR dokumentieren
+### 4. Entscheidung als ADR
 
-Legt unter `docs/adr/` einen Architecture Decision Record an (Status,
-Kontext, Entscheidung, Konsequenzen) zu eurer AI-Integration.
+`docs/adr/0001-ai-review-in-der-pipeline.md` mit den Abschnitten Status,
+Kontext, Entscheidung und Konsequenzen.
 
-> **Bonus (Spec-First):** Schreibt vorab eine kurze Spec
-> (`specs/ai-workflow.md`) und lasst die `*.yml`-Datei daraus generieren.
+### 5. Reflexion
 
-**Erwartete Deliverables**
+`AI_INTEGRATION.md` (mindestens 150 Woerter) mit den Abschnitten
+Implementiertes Feature, Was die AI-Integration leistet, **Grenzen und
+Schwaechen**, **Security-Betrachtung** (Ergebnis eures Prompt-Injection-Tests)
+und Fazit.
 
-- Mindestens ein funktionierender AI-Workflow in der TechStyle-Pipeline
-- `AI_INTEGRATION.md` mit ausgefuellter Reflexion
-- Ein ADR unter `docs/adr/` zur AI-Integration
-- Mindestens ein erfolgreicher Pipeline-Run
-
-> **Tipp:** Die GitHub Models API kann gedrosselt sein — plant einen Fallback
-> ein. Testet zuerst mit `workflow_dispatch`, bevor ihr auf `push` umstellt.
+> **Tipp:** Die GitHub Models API ist gedrosselt — genau dafuer ist TODO 2 da.
+> Bleibt der Kommentar aus, im Tab **Actions** den Lauf oeffnen: `401`/`403`
+> deutet auf fehlende `permissions`.
 
 ## Abnahmekriterien
 
@@ -79,18 +87,27 @@ sobald eine Aenderung es wieder bricht, verschwindet der Haken. Du musst hier
 nichts von Hand pflegen — beim naechsten Push wird die Liste ueberschrieben.
 
 <!-- c50:progress -->
-**Fortschritt: 0 / 0 Kriterien erfüllt**  — Stand: 2026-09-05 23:04 UTC.
+**Fortschritt: 0 / 14 Kriterien erfüllt** ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ — Stand: 2026-09-19 18:27 UTC.
 <!-- /c50:progress -->
 
-- [ ] ⬜ AI-Workflow existiert (.github/workflows/*ai*.yml)
-- [ ] ⬜ GitHub Models API oder KI-Integration im Workflow
-- [ ] ⬜ AI_INTEGRATION.md Reflexionsdokument existiert
-- [ ] ⬜ AI_INTEGRATION.md hat ausreichend Inhalt (mind. 100 Wörter)
-- [ ] ⬜ Abschnitt zu Grenzen/Risiken von AI vorhanden
+- [ ] ⬜ Spec für den AI-Review-Bot vorhanden (specs/*.md)
+- [ ] ⬜ Spec nennt Ziel, Anforderungen, Akzeptanzkriterien und Out of Scope
+- [ ] ⬜ AI-Workflow reagiert auf Pull Requests (.github/workflows/*ai*.yml)
+- [ ] ⬜ AI-Modell wird im Workflow aufgerufen (z. B. GitHub Models)
+- [ ] ⬜ Nur der Diff der Python-Dateien geht an die AI (TODO 1)
+- [ ] ⬜ Fallback, wenn die AI-API nicht antwortet (TODO 2)
+- [ ] ⬜ PR-Kommentar weist auf AI-Generierung hin — kein Ersatz für menschliches Review (TODO 3)
+- [ ] ⬜ Workflow-Berechtigungen minimal (pull-requests: write, models: read, kein write-all)
+- [ ] ⬜ Keine Step-Outputs oder PR-Texte direkt in run:/script: (Script Injection)
+- [ ] ⬜ Architecture Decision Record vorhanden (docs/adr/*.md)
+- [ ] ⬜ ADR nennt Status, Kontext, Entscheidung und Konsequenzen
+- [ ] ⬜ AI_INTEGRATION.md mit Reflexion vorhanden (mind. 150 Wörter)
+- [ ] ⬜ AI_INTEGRATION.md: Abschnitt Grenzen und Schwächen
+- [ ] ⬜ AI_INTEGRATION.md: Security-Betrachtung mit Prompt-Injection-Test
 
 Zusaetzlich manuell abgenommen (nicht automatisch geprueft):
 
-- Architecture Decision Record unter docs/adr/ angelegt
+- Pull Request mit AI-Kommentar und Injection-Test-PR im Repository sichtbar
 
 ## Abnahmekriterien selber pruefen
 
