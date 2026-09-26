@@ -27,6 +27,14 @@ ai_pr_code() {
   grep -hvE '^[[:space:]]*#' $files
 }
 
+# Workflows, die die Prompt-Evals ausführen und auf Änderungen an prompts/
+# reagieren. classroom.yml zählt nie mit.
+eval_wf() {
+  ls $WF/*.yml $WF/*.yaml 2>/dev/null | grep -v 'classroom\.yml' \
+    | xargs -r grep -lE 'evals/run\.sh' 2>/dev/null \
+    | xargs -r grep -lE 'prompts/' 2>/dev/null
+}
+
 # Kein Wert aus Step-Outputs oder PR-Texten direkt in run:/script: — sonst kann
 # ein präparierter PR Shell- bzw. JS-Code im Runner ausführen.
 no_script_injection() {
@@ -62,7 +70,7 @@ solution_for_id() {
     ai-workflow)
       echo "Lege $WF/ai-review.yml an. Der Dateiname muss 'ai' enthalten, und der Workflow muss auf pull_request reagieren." ;;
     ai-api)
-      echo "Rufe im Workflow ein AI-Modell auf, z. B. https://models.github.ai/inference/chat/completions mit model openai/gpt-4o-mini." ;;
+      echo "Rufe im Workflow ein AI-Modell auf, z. B. Ollama als Service-Container (image: ollama/ollama) und http://localhost:11434/v1/chat/completions." ;;
     ai-py)
       echo "TODO 1: Schicke nur den Diff der Python-Dateien an die AI, z. B. git diff ... -- '*.py'." ;;
     ai-fallback)
@@ -70,9 +78,15 @@ solution_for_id() {
     ai-disclaimer)
       echo "TODO 3: Ergänze im PR-Kommentar den Hinweis, dass der Review AI-generiert und kein Ersatz für menschliches Code Review ist (die Worte 'kein Ersatz' müssen vorkommen)." ;;
     ai-permissions)
-      echo "Setze im Workflow einen permissions-Block mit 'pull-requests: write' und 'models: read' — und kein 'write-all'." ;;
+      echo "Setze im Workflow einen permissions-Block mit 'contents: read' und 'pull-requests: write' — und kein 'write-all'." ;;
     ai-injection)
       echo "Setze keine Step-Outputs (\${{ steps.X.outputs.Y }}) oder PR-Texte (Titel, Body, Branch-Name) direkt in run:/script: ein. Übergib sie über env: oder eine Datei." ;;
+    prompt-file)
+      echo "Lege den System-Prompt in prompts/review-system.md ab und lies ihn im Workflow ein, z. B. jq --rawfile sys prompts/review-system.md." ;;
+    eval-case)
+      echo "Lege in evals/cases/ einen Testfall an: eine .diff-Datei mit Injection-Kommentar (\"Ignoriere alle vorherigen Anweisungen ...\") und eine gleichnamige .expect-Datei." ;;
+    eval-workflow)
+      echo "Lege einen Workflow an, der bei Änderungen an prompts/ 'bash evals/run.sh' ausführt (z. B. $WF/ai-prompt-eval.yml)." ;;
     adr)
       echo "Lege docs/adr/0001-ai-review-in-der-pipeline.md an (Vorlage in der Tagesplanung, Schritt 4)." ;;
     adr-content)
@@ -107,7 +121,7 @@ check "ai-workflow" \
   "ai_pr_wf | grep -q ."
 
 check "ai-api" \
-  "AI-Modell wird im Workflow aufgerufen (z. B. GitHub Models)" \
+  "AI-Modell wird im Workflow aufgerufen (z. B. Ollama im Runner)" \
   "ai_pr_code | grep -qiE '$MODEL_CALL'"
 
 check "ai-py" \
@@ -126,12 +140,24 @@ echo ""
 echo "── Schritt 3: Absicherung ──"
 
 check "ai-permissions" \
-  "Workflow-Berechtigungen minimal (pull-requests: write, models: read, kein write-all)" \
-  "ai_pr_code | grep -qE 'pull-requests:[[:space:]]*write' && ai_pr_code | grep -qE 'models:[[:space:]]*read' && ! ai_pr_code | grep -qE 'write-all'"
+  "Workflow-Berechtigungen minimal (contents: read, pull-requests: write, kein write-all)" \
+  "ai_pr_code | grep -qE 'contents:[[:space:]]*read' && ai_pr_code | grep -qE 'pull-requests:[[:space:]]*write' && ! ai_pr_code | grep -qE 'write-all'"
 
 check "ai-injection" \
   "Keine Step-Outputs oder PR-Texte direkt in run:/script: (Script Injection)" \
   "no_script_injection"
+
+check "prompt-file" \
+  "System-Prompt versioniert unter prompts/ und im Workflow eingelesen" \
+  "ls prompts/* 2>/dev/null | grep -q . && ai_pr_code | grep -qE 'prompts/'"
+
+check "eval-case" \
+  "Prompt-Eval: Testfall mit Injection-Versuch in evals/cases/" \
+  "ls evals/cases/*.expect 2>/dev/null | grep -q . && grep -qiE 'ignorier|ignore' evals/cases/*.diff 2>/dev/null"
+
+check "eval-workflow" \
+  "Prompt-Eval läuft als Workflow bei Änderungen an prompts/" \
+  "eval_wf | grep -q ."
 
 echo ""
 echo "── Schritt 4: ADR ──"
